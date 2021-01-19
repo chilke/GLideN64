@@ -3,7 +3,7 @@
 #pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
 #endif
 #pragma once
-
+#include <stdio.h>
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -25,7 +25,42 @@
 #include <Graphics/OpenGLContext/windows/WindowsWGL.h>
 #endif
 
+#define DEBUG_PRINT(...)
+
 namespace opengl {
+
+class GlGenericFuncCommand : public OpenGlCommand
+{
+public:
+	GlGenericFuncCommand() :
+		OpenGlCommand(true, false, "glGenericFunc", false)
+	{
+
+	}
+
+	static std::shared_ptr<OpenGlCommand> get(void (*func)(void *), void *arg)
+	{
+		static int poolId = OpenGlCommandPool::get().getNextAvailablePool();
+		auto ptr = getFromPool<GlGenericFuncCommand>(poolId);
+		ptr->set(func, arg);
+		return ptr;
+	}
+
+	void commandToExecute() override
+	{
+		DEBUG_PRINT(stderr, "commandToExecute: genericFunc\n");
+		m_func(m_arg);
+	}
+private:
+	void set(void (*func)(void *), void *arg)
+	{
+		m_func = func;
+		m_arg = arg;
+	}
+
+	void (*m_func)(void *);
+	void *m_arg;
+};
 
 class GlBlendFuncCommand : public OpenGlCommand
 {
@@ -45,6 +80,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBlendFunc\n");
 		ptrBlendFunc(m_sfactor, m_dfactor);
 	}
 private:
@@ -76,6 +112,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBlendFuncSeparate\n");
 		ptrBlendFuncSeparate(m_sfactorcolor, m_dfactorcolor, m_sfactoralpha, m_dfactoralpha);
 	}
 private:
@@ -112,6 +149,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrPixelStorei\n");
 		ptrPixelStorei(m_pname, m_param);
 	}
 
@@ -145,6 +183,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrClearColor\n");
 		ptrClearColor(m_red, m_green, m_blue, m_alpha);
 	}
 private:
@@ -180,6 +219,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCullFace\n");
 		ptrCullFace(m_mode);
 	}
 
@@ -210,6 +250,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDepthFunc\n");
 		ptrDepthFunc(m_func);
 	}
 
@@ -241,6 +282,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDepthMask\n");
 		ptrDepthMask(m_flag);
 	}
 
@@ -271,6 +313,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDisable\n");
 		ptrDisable(m_cap);
 	}
 
@@ -301,6 +344,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrEnable\n");
 		ptrEnable(m_cap);
 	}
 
@@ -331,6 +375,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDisablei\n");
 		ptrDisablei(m_target, m_index);
 	}
 
@@ -363,6 +408,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrEnablei\n");
 		ptrEnablei(m_target, m_index);
 	}
 
@@ -395,6 +441,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrPolygonOffset\n");
 		ptrPolygonOffset(m_factor, m_units);
 	}
 
@@ -427,6 +474,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrScissor\n");
 		ptrScissor(m_x, m_y, m_width, m_height);
 	}
 
@@ -463,6 +511,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrViewport\n");
 		ptrViewport(m_x, m_y, m_width, m_height);
 	}
 
@@ -499,6 +548,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute ptrBindTexture %d\n", m_texture);
 		ptrBindTexture(m_target, m_texture);
 	}
 
@@ -532,6 +582,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexImage2D\n");
 		ptrTexImage2D(m_target, m_level, m_internalformat, m_width, m_height, m_border, m_format, m_type,
 			OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_pixels));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_pixels);
@@ -581,6 +632,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexParameteri\n");
 		ptrTexParameteri(m_target, m_pname, m_param);
 	}
 
@@ -615,6 +667,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetIntegerv\n");
 		ptrGetIntegerv(m_pname, m_data);
 	}
 
@@ -647,6 +700,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetString\n");
 		*m_returnValue = ptrGetString(m_name);
 	}
 
@@ -679,6 +733,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrReadPixels\n");
 		ptrReadPixels(m_x, m_y, m_width, m_height, m_format, m_type, m_pixels);
 	}
 
@@ -721,6 +776,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrReadPixels\n");
 		ptrReadPixels(m_x, m_y, m_width, m_height, m_format, m_type, nullptr);
 	}
 
@@ -773,6 +829,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexSubImage2D\n");
 		ptrTexSubImage2D(m_target, m_level, m_xoffset, m_yoffset, m_width, m_height, m_format, m_type,
 			OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_pixels));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_pixels);
@@ -822,6 +879,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawArrays\n");
 		ptrDrawArrays(m_mode, m_first, m_count);
 	}
 
@@ -1026,6 +1084,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawArrays\n");
 		auto& vertexAttributes = GlVertexAttribPointerManager::getVertexAttributesRender();
 
 		for (auto& data : vertexAttributes) {
@@ -1079,6 +1138,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetError\n");
 		*m_returnValue = ptrGetError();
 	}
 
@@ -1110,6 +1170,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawElements\n");
 		auto& vertexAttributes = GlVertexAttribPointerManager::getVertexAttributesRender();
 
 		for (auto& data : vertexAttributes) {
@@ -1166,6 +1227,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrLineWidth\n");
 		ptrLineWidth(m_width);
 	}
 
@@ -1196,6 +1258,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrClear\n");
 		ptrClear(m_mask);
 	}
 
@@ -1226,6 +1289,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrClearBufferfv\n");
 		ptrClearBufferfv(m_buffer, m_drawbuffer, reinterpret_cast<const GLfloat*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_value)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_value);
 	}
@@ -1261,6 +1325,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetFloatv\n");
 		ptrGetFloatv(m_pname, m_data);
 	}
 
@@ -1293,6 +1358,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteTextures\n");
 		ptrDeleteTextures(m_n, reinterpret_cast<const GLuint*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_textures)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_textures);
 	}
@@ -1326,6 +1392,7 @@ public:
 
 	void commandToExecute() override
 	{
+		fprintf(stderr, "commandToExecute: ptrGenTextures thread: %ld\n", pthread_self());
 		ptrGenTextures(m_n, m_textures);
 	}
 
@@ -1358,6 +1425,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexParameterf\n");
 		ptrTexParameterf(m_target, m_pname, m_param);
 	}
 
@@ -1392,6 +1460,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrActiveTexture\n");
 		ptrActiveTexture(m_texture);
 	}
 
@@ -1422,6 +1491,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBlendColor\n");
 		ptrBlendColor(m_red, m_green, m_blue, m_alpha);
 	}
 
@@ -1458,6 +1528,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrReadBuffer\n");
 		ptrReadBuffer(m_src);
 	}
 
@@ -1488,6 +1559,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCreateShader\n");
 		*m_returnValue = ptrCreateShader(m_type);
 	}
 
@@ -1520,6 +1592,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCompileShader\n");
 		ptrCompileShader(m_shader);
 	}
 
@@ -1550,6 +1623,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrShaderSource\n");
 		const GLchar **stringData = new const GLchar*[m_strings.size()];
 		for (unsigned int index = 0; index < m_strings.size(); ++index) {
 			stringData[index] = m_strings[index].data();
@@ -1587,6 +1661,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCreateProgram\n");
 		*m_returnValue = ptrCreateProgram();
 	}
 
@@ -1617,6 +1692,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrAttachShader\n");
 		ptrAttachShader(m_program, m_shader);
 	}
 
@@ -1649,6 +1725,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrLinkProgram\n");
 		ptrLinkProgram(m_program);
 	}
 
@@ -1679,6 +1756,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUseProgram\n");
 		ptrUseProgram(m_program);
 	}
 
@@ -1709,6 +1787,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetUniformLocation\n");
 		*m_returnValue = ptrGetUniformLocation(m_program, m_name);
 	}
 
@@ -1743,6 +1822,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform1i\n");
 		ptrUniform1i(m_location, m_v0);
 	}
 
@@ -1775,6 +1855,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform1f\n");
 		ptrUniform1f(m_location, m_v0);
 	}
 
@@ -1807,6 +1888,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform2f\n");
 		ptrUniform2f(m_location, m_v0, m_v1);
 	}
 
@@ -1842,6 +1924,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform2i\n");
 		ptrUniform2i(m_location, m_v0, m_v1);
 	}
 
@@ -1876,6 +1959,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform4i\n");
 		ptrUniform4i(m_location, m_v0, m_v1, m_v2, m_v3);
 	}
 
@@ -1914,6 +1998,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform4f\n");
 		ptrUniform4f(m_location, m_v0, m_v1, m_v2, m_v3);
 	}
 
@@ -1952,6 +2037,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform3fv\n");
 		ptrUniform3fv(m_location, m_count, reinterpret_cast<const GLfloat*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_value)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_value);
 	}
@@ -1987,6 +2073,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniform4fv\n");
 		ptrUniform4fv(m_location, m_count, reinterpret_cast<const GLfloat*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_value)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_value);
 	}
@@ -2022,6 +2109,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDetachShader\n");
 		ptrDetachShader(m_program, m_shader);
 	}
 
@@ -2054,6 +2142,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteShader\n");
 		ptrDeleteShader(m_shader);
 	}
 
@@ -2084,6 +2173,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteProgram\n");
 		ptrDeleteProgram(m_program);
 	}
 
@@ -2114,6 +2204,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetProgramInfoLog\n");
 		ptrGetProgramInfoLog(m_program, m_bufSize, m_length, m_infoLog);
 	}
 
@@ -2150,6 +2241,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetShaderInfoLog\n");
 		ptrGetShaderInfoLog(m_shader, m_bufSize, m_length, m_infoLog);
 	}
 
@@ -2186,6 +2278,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetShaderiv\n");
 		ptrGetShaderiv(m_shader, m_pname, m_params);
 	}
 
@@ -2220,6 +2313,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetProgramiv\n");
 		ptrGetProgramiv(m_program, m_pname, *m_params);
 	}
 
@@ -2254,6 +2348,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrEnableVertexAttribArray\n");
 		GlVertexAttribPointerManager::enableVertexAttributeIndexRender(m_index);
 		ptrEnableVertexAttribArray(m_index);
 	}
@@ -2285,6 +2380,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDisableVertexAttribArray\n");
 		GlVertexAttribPointerManager::disableVertexAttributeIndexRender(m_index);
 		ptrDisableVertexAttribArray(m_index);
 	}
@@ -2317,6 +2413,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrVertexAttribPointer\n");
 		ptrVertexAttribPointer(m_index, m_size, m_type, m_normalized, m_stride, m_offset);
 	}
 
@@ -2358,6 +2455,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindAttribLocation\n");
 		ptrBindAttribLocation(m_program, m_index, m_name.data());
 	}
 
@@ -2392,6 +2490,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrVertexAttrib1f\n");
 		ptrVertexAttrib1f(m_index, m_x);
 	}
 
@@ -2424,6 +2523,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrVertexAttrib4f\n");
 		ptrVertexAttrib4f(m_index, m_x, m_y, m_z, m_w);
 	}
 
@@ -2462,6 +2562,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrVertexAttrib4fv\n");
 		ptrVertexAttrib4fv(m_index, reinterpret_cast<const GLfloat*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_v)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_v);
 	}
@@ -2495,6 +2596,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDepthRangef\n");
 		ptrDepthRangef(m_n, m_f);
 	}
 
@@ -2527,6 +2629,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrClearDepthf\n");
 		ptrClearDepthf(m_d);
 	}
 
@@ -2557,6 +2660,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawBuffers\n");
 		ptrDrawBuffers(m_n, reinterpret_cast<const GLenum*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_bufs)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_bufs);
 	}
@@ -2590,6 +2694,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGenFramebuffers\n");
 		ptrGenFramebuffers(m_n, m_framebuffers);
 	}
 
@@ -2622,6 +2727,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindFramebuffer\n");
 		ptrBindFramebuffer(m_target, m_framebuffer);
 	}
 
@@ -2654,6 +2760,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteFramebuffers\n");
 		ptrDeleteFramebuffers(m_n, reinterpret_cast<const GLuint*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_framebuffers)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_framebuffers);
 	}
@@ -2687,6 +2794,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrFramebufferTexture2D\n");
 		ptrFramebufferTexture2D(m_target, m_attachment, m_textarget, m_texture, m_level);
 	}
 
@@ -2726,6 +2834,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexImage2DMultisample\n");
 		ptrTexImage2DMultisample(m_target, m_samples, m_internalformat, m_width, m_height, m_fixedsamplelocations);
 	}
 
@@ -2768,6 +2877,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexStorage2DMultisample\n");
 		ptrTexStorage2DMultisample(m_target, m_samples, m_internalformat, m_width, m_height, m_fixedsamplelocations);
 	}
 
@@ -2809,6 +2919,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGenRenderbuffers\n");
 		ptrGenRenderbuffers(m_n, m_renderbuffers);
 	}
 
@@ -2841,6 +2952,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindRenderbuffer\n");
 		ptrBindRenderbuffer(m_target, m_renderbuffer);
 	}
 
@@ -2873,6 +2985,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrRenderbufferStorage\n");
 		ptrRenderbufferStorage(m_target, m_internalformat, m_width, m_height);
 	}
 
@@ -2909,6 +3022,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteRenderbuffers\n");
 		ptrDeleteRenderbuffers(m_n, reinterpret_cast<const GLuint*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_renderbuffers)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_renderbuffers);
 	}
@@ -2942,6 +3056,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrFramebufferRenderbuffer\n");
 		ptrFramebufferRenderbuffer(m_target, m_attachment, m_renderbuffertarget, m_renderbuffer);
 	}
 
@@ -2978,6 +3093,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCheckFramebufferStatus\n");
 		*m_returnValue = ptrCheckFramebufferStatus(m_target);
 	}
 
@@ -3011,6 +3127,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBlitFramebuffer\n");
 		ptrBlitFramebuffer(m_srcX0, m_srcY0, m_srcX1, m_srcY1, m_dstX0, m_dstY0, m_dstX1, m_dstY1, m_mask,
 			m_filter);
 	}
@@ -3061,6 +3178,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGenVertexArrays\n");
 		ptrGenVertexArrays(m_n, m_arrays);
 	}
 
@@ -3093,6 +3211,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindVertexArray\n");
 		ptrBindVertexArray(m_array);
 	}
 
@@ -3123,6 +3242,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteVertexArrays\n");
 		ptrDeleteVertexArrays(m_n, reinterpret_cast<const GLuint*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_arrays)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_arrays);
 	}
@@ -3156,6 +3276,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGenBuffers\n");
 		ptrGenBuffers(m_n, m_buffers);
 	}
 
@@ -3203,6 +3324,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindBuffer\n");
 		ptrBindBuffer(m_target, m_buffer);
 		m_boundBuffersRender[m_target] = m_buffer;
 	}
@@ -3239,6 +3361,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBufferData\n");
 		ptrBufferData(m_target, m_size, OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_data), m_usage);
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_data);
 	}
@@ -3276,6 +3399,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrMapBuffer\n");
 		ptrMapBuffer(m_target, m_access);
 	}
 
@@ -3309,6 +3433,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrMapBufferRange\n");
 		*m_returnValue = ptrMapBufferRange(m_target, m_offset, m_length, m_access);
 	}
 
@@ -3349,6 +3474,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrMapBufferRange\n");
 		const char* data = OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_data);
 		void* buffer_pointer = ptrMapBufferRange(m_target, m_offset, m_length, m_access);
 		std::copy_n(data, m_length, reinterpret_cast<char*>(buffer_pointer));
@@ -3440,6 +3566,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrMapBufferRange\n");
 		void* buffer_pointer = ptrMapBufferRange(m_target, m_offset, m_length, m_access);
 
 		if (buffer_pointer != nullptr) {
@@ -3500,6 +3627,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUnmapBuffer\n");
 		*m_returnValue = ptrUnmapBuffer(m_target);
 	}
 
@@ -3532,6 +3660,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUnmapBuffer\n");
 		ptrUnmapBuffer(m_target);
 	}
 
@@ -3562,6 +3691,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteBuffers\n");
 		ptrDeleteBuffers(m_n, reinterpret_cast<const GLuint*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_buffers)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_buffers);
 	}
@@ -3596,6 +3726,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindImageTexture\n");
 		ptrBindImageTexture(m_unit, m_texture, m_level, m_layered, m_layer, m_access, m_format);
 	}
 
@@ -3639,6 +3770,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrMemoryBarrier\n");
 		ptrMemoryBarrier(m_barriers);
 	}
 
@@ -3669,6 +3801,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureBarrier\n");
 		ptrTextureBarrier();
 	}
 
@@ -3696,6 +3829,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureBarrierNV\n");
 		ptrTextureBarrierNV();
 	}
 
@@ -3723,6 +3857,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetStringi\n");
 		*m_returnValue = ptrGetStringi(m_name, m_index);
 	}
 
@@ -3757,6 +3892,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrInvalidateFramebuffer\n");
 		ptrInvalidateFramebuffer(m_target, m_numAttachments, reinterpret_cast<const GLenum*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_attachments)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_attachments);
 	}
@@ -3792,6 +3928,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBufferStorage\n");
 		ptrBufferStorage(m_target, m_size, OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_data), m_flags);
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_data);
 	}
@@ -3829,6 +3966,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrFenceSync\n");
 		*m_returnValue = ptrFenceSync(m_condition, m_flags);
 	}
 
@@ -3863,6 +4001,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrClientWaitSync\n");
 		ptrClientWaitSync(m_sync, m_flags, m_timeout);
 	}
 
@@ -3897,6 +4036,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDeleteSync\n");
 		ptrDeleteSync(m_sync);
 	}
 
@@ -3927,6 +4067,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetUniformBlockIndex\n");
 		*m_returnValue = ptrGetUniformBlockIndex(m_program, m_uniformBlockName);
 	}
 
@@ -3961,6 +4102,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrUniformBlockBinding\n");
 		ptrUniformBlockBinding(m_program, m_uniformBlockIndex, m_uniformBlockBinding);
 	}
 
@@ -3995,6 +4137,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetActiveUniformBlockiv\n");
 		ptrGetActiveUniformBlockiv(m_program, m_uniformBlockIndex, m_pname, m_params);
 	}
 
@@ -4032,6 +4175,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetUniformIndices\n");
 		ptrGetUniformIndices(m_program, m_uniformCount, m_uniformNames, m_uniformIndices);
 	}
 
@@ -4070,6 +4214,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetActiveUniformsiv\n");
 		ptrGetActiveUniformsiv(m_program, m_uniformCount, m_uniformIndices, m_pname, m_params);
 	}
 
@@ -4109,6 +4254,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBindBufferBase\n");
 		ptrBindBufferBase(m_target, m_index, m_buffer);
 	}
 
@@ -4143,6 +4289,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrBufferSubData\n");
 		ptrBufferSubData(m_target, m_offset, m_size, OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_data));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_data);
 	}
@@ -4180,6 +4327,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetProgramBinary\n");
 		ptrGetProgramBinary(m_program, m_bufSize, m_length, m_binaryFormat, m_binary);
 	}
 
@@ -4218,6 +4366,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrProgramBinary\n");
 		ptrProgramBinary(m_program, m_binaryFormat, OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_binary), m_length);
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_binary);
 	}
@@ -4255,6 +4404,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrProgramParameteri\n");
 		ptrProgramParameteri(m_program, m_pname, m_value);
 	}
 
@@ -4289,6 +4439,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTexStorage2D\n");
 		ptrTexStorage2D(m_target, m_levels, m_internalformat, m_width, m_height);
 	}
 
@@ -4327,6 +4478,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureStorage2D\n");
 		ptrTextureStorage2D(m_texture, m_levels, m_internalformat, m_width, m_height);
 	}
 
@@ -4366,6 +4518,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureSubImage2D\n");
 		ptrTextureSubImage2D(m_texture, m_level, m_xoffset, m_yoffset, m_width, m_height, m_format, m_type,
 			OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_pixels));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_pixels);
@@ -4416,6 +4569,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureStorage2DMultisample\n");
 		ptrTextureStorage2DMultisample(m_texture, m_target, m_samples, m_internalformat, m_width, m_height,
 			m_fixedsamplelocations);
 	}
@@ -4460,6 +4614,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureParameteri\n");
 		ptrTextureParameteri(m_texture, m_pname, m_param);
 	}
 
@@ -4494,6 +4649,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrTextureParameterf\n");
 		ptrTextureParameterf(m_texture, m_pname, m_param);
 	}
 
@@ -4528,6 +4684,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCreateTextures\n");
 		ptrCreateTextures(m_target, m_n, m_textures);
 	}
 
@@ -4562,6 +4719,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCreateBuffers\n");
 		ptrCreateBuffers(m_n, m_buffers);
 	}
 
@@ -4594,6 +4752,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCreateFramebuffers\n");
 		ptrCreateFramebuffers(m_n, m_framebuffers);
 	}
 
@@ -4626,6 +4785,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrNamedFramebufferTexture\n");
 		ptrNamedFramebufferTexture(m_framebuffer, m_attachment, m_texture, m_level);
 	}
 
@@ -4663,6 +4823,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawRangeElementsBaseVertex\n");
 		ptrDrawRangeElementsBaseVertex(m_mode, m_start, m_end, m_count, m_type, m_indices, m_basevertex);
 	}
 
@@ -4706,6 +4867,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrFlushMappedBufferRange\n");
 		ptrFlushMappedBufferRange(m_target, m_offset, m_length);
 	}
 
@@ -4740,6 +4902,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrFinish\n");
 		ptrFinish();
 	}
 
@@ -4768,6 +4931,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrCopyTexImage2D\n");
 		ptrCopyTexImage2D(m_target, m_level, m_internalformat, m_x, m_y, m_width, m_height, m_border);
 	}
 
@@ -4812,6 +4976,7 @@ class GlDebugMessageCallbackCommand : public OpenGlCommand
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDebugMessageCallback\n");
 		ptrDebugMessageCallback(m_callback, m_userParam);
 	}
 
@@ -4844,6 +5009,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrDebugMessageControl\n");
 		ptrDebugMessageControl(m_source, m_type, m_severity, m_count, m_ids, m_enabled);
 	}
 
@@ -4884,6 +5050,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrEGLImageTargetTexture2DOES\n");
 		ptrEGLImageTargetTexture2DOES(m_target, m_image);
 	}
 
@@ -4916,6 +5083,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrEGLImageTargetRenderbufferStorageOES\n");
 		ptrEGLImageTargetRenderbufferStorageOES(m_target, m_image);
 	}
 
@@ -4980,6 +5148,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGetNativeClientBufferANDROIDf\n");
 		*m_returnValue = ptrGetNativeClientBufferANDROID(m_buffer);
 	}
 

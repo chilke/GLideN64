@@ -144,6 +144,13 @@ void DisplayWindowMupen64plus::_restart()
 #endif // M64P_GLIDENUI
 }
 
+void callRenderCallback(void *arg)
+{
+	// int val = (int)arg;
+	// (*renderCallback)(val);
+	(*renderCallback)((gDP.changed&CHANGED_CPU_FB_WRITE) == 0 ? 1 : 0);
+}
+
 void DisplayWindowMupen64plus::_swapBuffers()
 {
 	// if emulator defined a render callback function, call it before buffer swap
@@ -154,7 +161,8 @@ void DisplayWindowMupen64plus::_swapBuffers()
 			gSP.changed |= CHANGED_VIEWPORT;
 		}
 		gDP.changed |= CHANGED_COMBINE;
-		(*renderCallback)((gDP.changed&CHANGED_CPU_FB_WRITE) == 0 ? 1 : 0);
+		opengl::FunctionWrapper::runOnGlThread(&callRenderCallback, (void *)((gDP.changed&CHANGED_CPU_FB_WRITE) == 0 ? 1 : 0));
+		// (*renderCallback)((gDP.changed&CHANGED_CPU_FB_WRITE) == 0 ? 1 : 0);
 	}
 
 	//Don't let the command queue grow too big buy waiting on no more swap buffers being queued
