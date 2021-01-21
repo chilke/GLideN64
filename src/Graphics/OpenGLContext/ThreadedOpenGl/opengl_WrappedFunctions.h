@@ -25,7 +25,7 @@
 #include <Graphics/OpenGLContext/windows/WindowsWGL.h>
 #endif
 
-#define DEBUG_PRINT(...)
+#define DEBUG_PRINT(...) //fprintf(__VA_ARGS__)
 
 namespace opengl {
 
@@ -33,7 +33,7 @@ class GlGenericFuncCommand : public OpenGlCommand
 {
 public:
 	GlGenericFuncCommand() :
-		OpenGlCommand(true, false, "glGenericFunc", false)
+		OpenGlCommand(false, false, "glGenericFunc", false)
 	{
 
 	}
@@ -548,7 +548,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute ptrBindTexture %d\n", m_texture);
+		// DEBUG_PRINT(stderr, "commandToExecute ptrBindTexture %d\n", m_texture);
 		ptrBindTexture(m_target, m_texture);
 	}
 
@@ -879,7 +879,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawArrays\n");
+		// DEBUG_PRINT(stderr, "commandToExecute: ptrDrawArrays\n");
 		ptrDrawArrays(m_mode, m_first, m_count);
 	}
 
@@ -1084,7 +1084,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawArrays\n");
+		// DEBUG_PRINT(stderr, "commandToExecute: ptrDrawArrays\n");
 		auto& vertexAttributes = GlVertexAttribPointerManager::getVertexAttributesRender();
 
 		for (auto& data : vertexAttributes) {
@@ -1170,7 +1170,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawElements\n");
+		// DEBUG_PRINT(stderr, "commandToExecute: ptrDrawElements\n");
 		auto& vertexAttributes = GlVertexAttribPointerManager::getVertexAttributesRender();
 
 		for (auto& data : vertexAttributes) {
@@ -1392,7 +1392,7 @@ public:
 
 	void commandToExecute() override
 	{
-		fprintf(stderr, "commandToExecute: ptrGenTextures thread: %ld\n", pthread_self());
+		DEBUG_PRINT(stderr, "commandToExecute: ptrGenTextures thread: %ld\n", pthread_self());
 		ptrGenTextures(m_n, m_textures);
 	}
 
@@ -1460,7 +1460,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute: ptrActiveTexture\n");
+		// DEBUG_PRINT(stderr, "commandToExecute: ptrActiveTexture\n");
 		ptrActiveTexture(m_texture);
 	}
 
@@ -2660,7 +2660,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawBuffers\n");
+		// DEBUG_PRINT(stderr, "commandToExecute: ptrDrawBuffers\n");
 		ptrDrawBuffers(m_n, reinterpret_cast<const GLenum*>(OpenGlCommand::m_ringBufferPool.getBufferFromPool(m_bufs)));
 		OpenGlCommand::m_ringBufferPool.removeBufferFromPool(m_bufs);
 	}
@@ -4823,7 +4823,7 @@ public:
 
 	void commandToExecute() override
 	{
-		DEBUG_PRINT(stderr, "commandToExecute: ptrDrawRangeElementsBaseVertex\n");
+		// DEBUG_PRINT(stderr, "commandToExecute: ptrDrawRangeElementsBaseVertex\n");
 		ptrDrawRangeElementsBaseVertex(m_mode, m_start, m_end, m_count, m_type, m_indices, m_basevertex);
 	}
 
@@ -5393,6 +5393,7 @@ public:
 
 	void commandToExecute() override
 	{
+		DEBUG_PRINT(stderr, "SwapBuffers\n");
 		::CoreVideo_GL_SwapBuffers();
 		m_swapBuffersCallback();
 	}
@@ -5405,6 +5406,7 @@ private:
 
 	std::function<void()> m_swapBuffersCallback;
 };
+
 #else
 	//Zilmar API functions
 	class WindowsStartCommand : public OpenGlCommand

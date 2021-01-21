@@ -144,15 +144,20 @@ void DisplayWindowMupen64plus::_restart()
 #endif // M64P_GLIDENUI
 }
 
+static int renderCallbackCount = 0;
 void callRenderCallback(void *arg)
 {
+	renderCallbackCount++;
 	// int val = (int)arg;
 	// (*renderCallback)(val);
 	(*renderCallback)((gDP.changed&CHANGED_CPU_FB_WRITE) == 0 ? 1 : 0);
 }
 
+static int swapBuffersCount = 0;
+
 void DisplayWindowMupen64plus::_swapBuffers()
 {
+	swapBuffersCount++;
 	// if emulator defined a render callback function, call it before buffer swap
 	if (renderCallback != nullptr) {
 		gfxContext.resetShaderProgram();

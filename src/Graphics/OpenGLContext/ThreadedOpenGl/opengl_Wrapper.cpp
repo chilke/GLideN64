@@ -262,10 +262,7 @@ namespace opengl {
 		if (m_threaded_wrapper)
 			executeCommand(GlBindTextureCommand::get(target, texture));
 		else
-		{
-			fprintf(stderr, "wrBindTexture ptrBindTexture %d\n", texture);
 			ptrBindTexture(target, texture);
-		}
 	}
 
 	void FunctionWrapper::wrTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)
